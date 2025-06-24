@@ -8,6 +8,7 @@ import net.wisecase2.stutterfix.config.ThreadConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.minecraft.util.thread.NameableExecutor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ForkJoinPool;
@@ -25,7 +26,7 @@ public class StutterFix implements ModInitializer {
 
 	public static boolean removeYieldOption = !FabricLoader.getInstance().isModLoaded("vulkanmod");
 
-	public static ExecutorService mainWorkerExecutor;
+	public static NameableExecutor mainWorkerExecutor;
 	public static Thread renderThread;
 	public static Thread serverThread;
 
@@ -48,7 +49,7 @@ public class StutterFix implements ModInitializer {
 
 		AtomicInteger NEXT_WORKER_ID = new AtomicInteger(0);
 
-		mainWorkerExecutor = new ForkJoinPool(threadCount, forkJoinPool -> {
+		mainWorkerExecutor = new NameableExecutor(new ForkJoinPool(threadCount, forkJoinPool -> {
 			ForkJoinWorkerThread forkJoinWorkerThread = new ForkJoinWorkerThread(forkJoinPool){
 
 				@Override
@@ -68,7 +69,7 @@ public class StutterFix implements ModInitializer {
 			}
 
 			return forkJoinWorkerThread;
-		}, StutterFix::uncaughtExceptionHandler, true);
+		}, StutterFix::uncaughtExceptionHandler, true));
 		isInitializedMainWorkerExecutor = true;
 	}
 
